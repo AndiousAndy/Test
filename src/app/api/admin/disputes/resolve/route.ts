@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/config';
 import prisma from '@/lib/prisma';
 import { MATCH_STATUS } from '@/lib/matchStatus';
 import { updateBalance } from '@/lib/balanceService';
-import { TransactionType } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
+import { Prisma, TransactionType } from '@prisma/client';
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -46,7 +46,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Use a transaction to ensure atomicity
-    const resolvedMatch = await prisma.$transaction(async (tx) => {
+    const resolvedMatch = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 1. Update Match Status and Winner
       const updatedMatch = await tx.match.update({
         where: { id: matchId },
