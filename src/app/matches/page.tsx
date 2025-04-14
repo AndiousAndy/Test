@@ -2,12 +2,21 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/config';
 import Link from 'next/link';
+import { Prisma, Match } from '@prisma/client';
+
+type MatchWithPlayers = Prisma.MatchGetPayload<{
+  include: {
+    player1: { select: { username: true } };
+    player2: { select: { username: true } };
+    winner: { select: { username: true } };
+  };
+}>;
 
 export default async function MatchesPage() {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
-  const matches = await prisma.match.findMany({
+  const matches: MatchWithPlayers[] = await prisma.match.findMany({
     where: {
       OR: [
         { player1Id: userId }, // Matches where user is host
@@ -36,9 +45,8 @@ export default async function MatchesPage() {
     },
   });
 
-  // Helper function to determine match result text and color
-  const getMatchResult = (match: any, userId: string) => {
-    if (match.status === 'CANCELLED_BY_HOST') {
+  const getMatchResult = (match: MatchWithPlayers, userId: string) => {
+    if (match.status === 'CANCELLED_BY_HOST' || match.status === 'CANCELLED_BY_ADMIN' || match.status === 'CANCELLED_EXPIRED') {
       return {
         text: 'CANCELLED',
         color: 'text-gray-500',
@@ -101,7 +109,7 @@ export default async function MatchesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {matches.map((match) => {
+              {matches.map((match: MatchWithPlayers) => {
                 const result = getMatchResult(match, userId || '');
                 return (
                   <tr
