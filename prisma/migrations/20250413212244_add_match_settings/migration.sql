@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Match" ADD COLUMN     "isPrivate" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "numberOfRounds" INTEGER NOT NULL DEFAULT 5,
+ADD COLUMN     "roundDurationMinutes" INTEGER NOT NULL DEFAULT 3;

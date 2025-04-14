@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "TransactionType" ADD VALUE 'MATCH_ADMIN_CANCEL_REFUND';

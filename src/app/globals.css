@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 10, 10, 15;
+  --background-end-rgb: 23, 23, 35;
+  --accent-red: 220, 38, 38;
+  --accent-red-dark: 185, 28, 28;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: radial-gradient(
+    circle at top center,
+    rgb(var(--background-end-rgb)),
+    rgb(var(--background-start-rgb))
+  );
+  min-height: 100vh;
+}
+
+/* Custom Animations */
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 10px rgba(220, 38, 38, 0.5); }
+  50% { text-shadow: 0 0 20px rgba(220, 38, 38, 0.8), 0 0 30px rgba(220, 38, 38, 0.3); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Custom Components */
+@layer components {
+  .glass-bg {
+    @apply bg-opacity-20 backdrop-blur-lg bg-gray-800 border border-gray-700/50;
+  }
+
+  .match-card {
+    @apply glass-bg rounded-xl p-6 transition-all duration-300 hover:bg-opacity-30 
+           hover:scale-[1.02] hover:shadow-2xl hover:shadow-red-900/20;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-br from-red-600 to-red-700 text-white font-bold py-3 px-6 
+           rounded-lg transition-all duration-300 hover:from-red-500 hover:to-red-600 
+           hover:scale-105 hover:shadow-lg hover:shadow-red-600/30 
+           active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-secondary {
+    @apply glass-bg text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 
+           hover:bg-opacity-30 hover:scale-105 hover:shadow-lg hover:shadow-white/10 
+           active:scale-95;
+  }
+
+  .input-field {
+    @apply glass-bg text-white rounded-lg px-4 py-3 w-full 
+           focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 
+           placeholder:text-gray-400;
+  }
+
+  .nav-link {
+    @apply text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-all duration-300 
+           hover:bg-red-500/10;
+  }
+
+  .card-hover-effect {
+    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-red-900/20;
+  }
+
+  .glow-text {
+    @apply animate-[glow_3s_ease-in-out_infinite];
+  }
+
+  .float-animation {
+    @apply animate-[float_6s_ease-in-out_infinite];
+  }
+
+  .stat-card {
+    @apply glass-bg rounded-xl p-6 transition-all duration-300 hover:bg-opacity-30 
+           hover:scale-[1.02] hover:border-red-500/50;
+  }
+  
+  .admin-card {
+    @apply glass-bg rounded-xl p-6 transition-all duration-300 
+           hover:bg-opacity-30 hover:scale-[1.02] hover:border-red-500/50
+           flex flex-col h-full;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--background-start-rgb));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--accent-red));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--accent-red-dark));
+}
