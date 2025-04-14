@@ -6,6 +6,8 @@ import { MATCH_STATUS } from '@/lib/matchStatus';
 import MatchCard from '@/components/MatchCard'; 
 import { Decimal } from '@prisma/client/runtime/library'; // Correct Decimal import
 
+export const dynamic = 'force-dynamic';
+
 // Define the select object separately for type inference
 const matchSelect = {
   id: true, status: true, scheduledFor: true, createdAt: true, updatedAt: true,
@@ -68,9 +70,7 @@ async function fetchMatches(): Promise<MatchWithPlayers[]> {
 }
 
 export default async function Home() {
-  // TEMPORARY: Disable database fetching for Netlify deployment without Supabase
-  // const matches: MatchWithPlayers[] = await fetchMatches(); 
-  const matches: MatchWithPlayers[] = []; // Use empty array for now
+  const matches: MatchWithPlayers[] = await fetchMatches(); 
 
   return (
     <div className="space-y-12">
@@ -132,37 +132,6 @@ export default async function Home() {
                 roundDurationMinutes={match.roundDurationMinutes}
                 numberOfRounds={match.numberOfRounds}
               />
-              /*
-              <div key={match.id} className="match-card group">
-                <div className="flex justify-between items-center mb-1">
-                  <div>
-                    <div className="text-2xl font-bold text-red-500">
-                      {(parseFloat(match.entryFee || '0') * 2).toFixed(2)} Credits
-                    </div>
-                    <div className="text-gray-400">Prize Pool</div>
-                  </div>
-                  <div className="text-right text-gray-400 text-sm">
-                    Entry: {parseFloat(match.entryFee || '0').toFixed(2)} Credits
-                  </div>
-                </div>
-
-                <div className="my-4 border-t border-gray-700"></div>
-
-                <div className="flex justify-between items-center mb-3">
-                  <span className="font-semibold">{match.player1?.username ?? 'Waiting...'}</span>
-                  <span className="text-gray-500 text-sm">vs</span>
-                  <span className="font-semibold">{match.player2?.username ?? 'Waiting...'}</span>
-                </div>
-
-                <div className="text-sm text-gray-400 mb-4">
-                  Scheduled for: {new Date(match.scheduledFor).toLocaleString()}
-                </div>
-
-                <Link href={`/matches/${match.id}`} className="btn-secondary w-full text-center">
-                  View Details
-                </Link>
-              </div>
-              */
             ))}
           </div>
         ) : (

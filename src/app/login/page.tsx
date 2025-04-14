@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();

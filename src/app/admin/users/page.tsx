@@ -1,12 +1,8 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-
-export const dynamic = 'force-dynamic';
-
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import UserActions from './UserActions';
+
+export const dynamic = 'force-dynamic';
 
 // Type for user data with selected fields
 type UserData = {
@@ -20,26 +16,31 @@ type UserData = {
 };
 
 async function getUsers(): Promise<UserData[]> {
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      username: true,
-      email: true,
-      balance: true,
-      credits: true,
-      isAdmin: true,
-      createdAt: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        balance: true,
+        credits: true,
+        isAdmin: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-  // Convert Decimal balance to string for serialization
-  return users.map(user => ({
-    ...user,
-    balance: user.balance.toString(),
-  }));
+    // Convert Decimal balance to string for serialization
+    return users.map(user => ({
+      ...user,
+      balance: user.balance.toString(),
+    }));
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return [];
+  }
 }
 
 export default async function UsersPage() {
