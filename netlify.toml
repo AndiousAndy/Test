@@ -1,7 +1,8 @@
 [build]
-  # More explicit build command to avoid Prisma issues
-  command = "NODE_ENV=production NEXT_STATIC_BUILD=true npm run build"
-  publish = "out"
+  # Use standard npm run build, remove NEXT_STATIC_BUILD
+  command = "NODE_ENV=production npm run build"
+  # Publish the standard Next.js output directory
+  publish = ".next"
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
