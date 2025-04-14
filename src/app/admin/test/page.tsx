@@ -3,6 +3,8 @@
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminTestPage() {
   const { data: session, status } = useSession();
 

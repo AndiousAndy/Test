@@ -1,4 +1,12 @@
-export default function CreateMatch() {
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+
+export const dynamic = 'force-dynamic';
+
+export default function CreateMatchPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-8">Create a Match</h1>

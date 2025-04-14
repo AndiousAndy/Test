@@ -1,4 +1,10 @@
+'use client';
+
+import React from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react'; // Assuming you might check session here
+
+export const dynamic = 'force-dynamic';
 
 export default function AdminDashboard() {
   return (

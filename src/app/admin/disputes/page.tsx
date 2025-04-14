@@ -29,6 +29,8 @@ interface DisputedMatch {
   updatedAt: string;
 }
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminDisputesPage() {
   const { data: session, status } = useSession();
   const router = useRouter();

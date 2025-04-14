@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
+export const dynamic = 'force-dynamic';
+
 // Define types for tournament data
 type Match = {
   player1: string;
