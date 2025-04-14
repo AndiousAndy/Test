@@ -134,7 +134,7 @@ export default async function MatchesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <span className="text-red-500 font-medium">
-                        {match.entryFee} Credits
+                        {match.entryFee.toString()} Credits
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
