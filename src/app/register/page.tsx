@@ -1,21 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession, signIn } from 'next-auth/react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const supabase = createClient();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/dashboard');
-    }
-  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,54 +26,29 @@ export default function RegisterPage() {
     };
 
     try {
-      const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        throw new Error(result.error || 'Registration failed');
-      }
-
-      // Auto login after registration
-      const signInResult = await signIn('credentials', {
+      const { error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
-        redirect: false,
+        options: {
+          data: {
+            username: data.username,
+            totf2_id: data.totfId,
+            discord_username: data.discordTag,
+          }
+        }
       });
 
-      if (signInResult?.error) {
-        setError('Registration successful but login failed. Please try logging in.');
-      } else {
-        router.push('/dashboard');
-        router.refresh();
-      }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Registration failed');
+      if (error) throw error;
+
+      // Show success message
+      alert('Please check your email to confirm your registration.');
+      router.push('/login');
+    } catch (error: any) {
+      setError(error.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }
   };
-
-  if (status === 'loading') {
-    return (
-      <div className="flex min-h-[80vh] items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500 mx-auto"></div>
-          <p className="mt-4 text-gray-400">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === 'authenticated') {
-    return null; // This will prevent any flash of the form while redirecting
-  }
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center">
@@ -187,6 +156,12 @@ export default function RegisterPage() {
             </button>
           </div>
         </form>
+
+        <div className="text-center">
+          <Link href="/login" className="text-sm text-red-500 hover:text-red-400">
+            Already have an account? Sign in
+          </Link>
+        </div>
       </div>
     </div>
   );
