@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma'; 
 import { MATCH_STATUS } from '@/lib/matchStatus';
 import { Decimal } from '@prisma/client/runtime/library';
-import { TransactionType } from '@prisma/client';
+import { TransactionType, Prisma } from '@prisma/client';
 
 // IMPORTANT: Protect this endpoint in production! 
 // Use a secret query parameter, IP allowlisting, or a secure cron service.
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
         
         console.log(`MANUAL FIX: Match ${specificMatchId} found in ${specificMatch.status} state and past scheduled time. Fixing...`);
         
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
           // 1. Update the match status to CANCELLED_EXPIRED
           await tx.match.update({
             where: { id: specificMatchId },
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
     for (const match of expiredMatches) {
       try {
         console.log(`CRON JOB (GET): Processing match ${match.id} with status ${match.status}`);
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
           // 1. Update the match status to CANCELLED_EXPIRED
           await tx.match.update({
             where: { id: match.id },

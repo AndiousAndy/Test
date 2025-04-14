@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { updateBalance } from '@/lib/balanceService'; 
 import { TransactionType } from '@prisma/client'; 
 import { Decimal } from '@prisma/client/runtime/library'; 
+import { Prisma } from '@prisma/client'; // Ensure Prisma namespace is imported
 
 export async function GET(req: Request) {
   try {
@@ -90,7 +91,7 @@ export async function POST(req: Request) {
     }
 
     // Perform match creation and balance deduction in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       
       // --- Conditional Balance Check --- 
       if (!isPractice) {

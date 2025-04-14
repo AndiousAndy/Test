@@ -6,6 +6,7 @@ import { updateBalance } from '@/lib/balanceService';
 import { TransactionType } from '@prisma/client'; 
 import { Decimal } from '@prisma/client/runtime/library';
 import { MATCH_STATUS } from '@/lib/matchStatus';
+import { Prisma } from '@prisma/client'; // Ensure Prisma namespace is imported
 
 export async function GET(
   req: Request,
@@ -152,7 +153,7 @@ export async function PATCH(
       updateData.status = MATCH_STATUS.COMPLETED; // Force status to COMPLETED if winner is set
 
       console.log(`[MATCH ${matchId}] Starting transaction for winner/status update.`);
-      const updatedMatch = await prisma.$transaction(async (tx) => {
+      const updatedMatch = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         console.log(`[MATCH ${matchId}] Inside transaction - Updating match status and winner.`);
         // 1. Update Match Status and Winner
         const finalisedMatch = await tx.match.update({
@@ -276,7 +277,7 @@ export async function DELETE(
     try {
       console.log(`[DELETE /api/matches/${matchId}] Starting cancellation transaction for match ${matchId}. Entry fee: ${match.entryFee}`);
       
-      const result = await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         console.log(`[DELETE /api/matches/${matchId}] Inside transaction.`);
 
         // 1. Refund Player 1 (Host)
