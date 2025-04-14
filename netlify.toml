@@ -1,10 +1,11 @@
 [build]
-  command = "NODE_ENV=production npx next build"
-  publish = "out" # Changed from .next to out for static export
+  command = "next build"
+  publish = "out"
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
   NODE_VERSION = "20"
+  NODE_ENV = "production"
   # Set a placeholder DATABASE_URL for Prisma to build without connecting
   DATABASE_URL = "file:./dev.db"
   # Flag to indicate we're doing a static build
