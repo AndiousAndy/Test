@@ -8,7 +8,3 @@
   NODE_VERSION = "20"
   # Set a placeholder DATABASE_URL for Prisma to build without connecting
   DATABASE_URL = "file:./dev.db"
-
-# Disable the Next.js plugin since we're doing a static export
-[plugins]
-  package = []
