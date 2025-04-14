@@ -5,19 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-export const dynamic = 'force-dynamic';
-
-interface Match {
-  id: string;
-  prizePool: number;
-  entryFee: number;
-  status: string;
-  scheduledFor: string;
-  player1: { username: string };
-  player2: { username: string } | null;
-  winner: string | null;
-}
-
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -212,4 +199,15 @@ export default function Dashboard() {
       </div>
     </div>
   );
+}
+
+interface Match {
+  id: string;
+  prizePool: number;
+  entryFee: number;
+  status: string;
+  scheduledFor: string;
+  player1: { username: string };
+  player2: { username: string } | null;
+  winner: string | null;
 }

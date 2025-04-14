@@ -6,8 +6,6 @@ import { MATCH_STATUS } from '@/lib/matchStatus';
 import MatchCard from '@/components/MatchCard'; 
 import { Decimal } from '@prisma/client/runtime/library'; // Correct Decimal import
 
-export const dynamic = 'force-dynamic';
-
 // Define the select object separately for type inference
 const matchSelect = {
   id: true, status: true, scheduledFor: true, createdAt: true, updatedAt: true,
@@ -29,48 +27,9 @@ type MatchWithPlayers = Omit<FetchedMatchType, 'entryFee'> & {
   entryFee: string;
 };
 
-async function fetchMatches(): Promise<MatchWithPlayers[]> {
-  try {
-    // Explicitly cast the result to FetchedMatchType[] due to inference issues
-    const matches = (await prisma.match.findMany({
-      where: {
-        isPrivate: false, 
-        status: {
-          // Only show matches that are genuinely open or waiting
-          in: [MATCH_STATUS.OPEN, MATCH_STATUS.WAITING_OPPONENT]
-        },
-        // Ensure WAITING_OPPONENT matches haven't passed their scheduled time
-        // (Although the cron job should handle this, adding a filter here is good practice)
-        OR: [
-          { status: MATCH_STATUS.OPEN }, // Always show OPEN matches
-          { 
-            status: MATCH_STATUS.WAITING_OPPONENT,
-            scheduledFor: { gte: new Date() } // Only show if scheduled time is in the future
-          }
-        ]
-      },
-      select: matchSelect, // Use the defined select object
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: 6, 
-    })) as FetchedMatchType[]; // Force the type
-
-    // Convert Decimal fields to string and map to the final MatchWithPlayers structure
-    return matches.map((match: FetchedMatchType): MatchWithPlayers => { // Use precise inferred type
-      return {
-        ...match, // Spread all properties from the fetched match
-        entryFee: match.entryFee.toString(),
-      };
-    });
-  } catch (error) {
-    console.error('Failed to fetch matches:', error);
-    return []; 
-  }
-}
-
-export default async function Home() {
-  const matches: MatchWithPlayers[] = await fetchMatches(); 
+export default function Home() {
+  // Use an empty array for matches in static export
+  const matches: MatchWithPlayers[] = [];
 
   return (
     <div className="space-y-12">
@@ -135,7 +94,7 @@ export default async function Home() {
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-500">No open matches available right now. Why not create one?</p>
+          <p className="text-center text-gray-500">Match data will be loaded client-side.</p>
         )}
       </div>
     </div>

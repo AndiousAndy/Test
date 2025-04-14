@@ -3,8 +3,6 @@
 import React from 'react';
 import type { NextPage } from 'next';
 
-export const dynamic = 'force-dynamic';
-
 const DisputedMatchesPage: NextPage = () => {
   return (
     <div>

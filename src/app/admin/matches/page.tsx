@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { format } from 'date-fns'; // For formatting dates
 import { MATCH_STATUS } from '@/lib/matchStatus'; // Import status enum
 
-export const dynamic = 'force-dynamic';
-
 interface Player {
   id: string;
   username: string;
