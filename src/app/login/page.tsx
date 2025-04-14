@@ -1,29 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { status } = useSession();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/dashboard');
-    }
-  }, [status, router]);
 
-  useEffect(() => {
-    if (searchParams?.get('registered') === 'true') {
-      setShowSuccess(true);
-    }
-  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,39 +20,16 @@ export default function LoginPage() {
     const email = formData.get('email');
     const password = formData.get('password');
 
-    try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        throw new Error('Invalid credentials');
-      }
-
+    // Simulate login with placeholder data
+    if (email === 'test@example.com' && password === 'password') {
       router.push('/dashboard');
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to sign in');
-    } finally {
-      setIsLoading(false);
+    } else {
+      setError('Invalid credentials');
     }
+    setIsLoading(false);
   };
 
-  if (status === 'loading') {
-    return (
-      <div className="flex min-h-[80vh] items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500 mx-auto"></div>
-          <p className="mt-4 text-gray-400">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
-  if (status === 'authenticated') {
-    return null; // This will prevent any flash of the form while redirecting
-  }
 
   return (
     <div 
@@ -86,11 +49,9 @@ export default function LoginPage() {
             </h2>
           </div>
 
-          {showSuccess && (
-            <div className="mt-4 p-4 bg-green-500/10 border border-green-500/50 rounded-lg text-green-400">
-              Account created successfully! Please sign in.
-            </div>
-          )}
+          <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/50 rounded-lg text-blue-400">
+            Demo credentials: test@example.com / password
+          </div>
 
           {error && (
             <div className="mt-4 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400">

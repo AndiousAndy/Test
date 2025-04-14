@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { pusherClient } from '@/lib/pusher';
 
 interface Message {
   id: string;
@@ -16,52 +14,53 @@ interface ChatProps {
 }
 
 export function Chat({ matchId }: ChatProps) {
-  const { data: session } = useSession();
+  const username = 'User_' + Math.floor(Math.random() * 1000);  // Simulate a random user
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    pusherClient.subscribe(`match-${matchId}`);
-
-    pusherClient.bind('new-message', (message: Message) => {
-      setMessages((prev) => [...prev, message]);
-    });
-
-    return () => {
-      pusherClient.unsubscribe(`match-${matchId}`);
-    };
-  }, [matchId]);
+    // Initialize with placeholder messages
+    setMessages([
+      {
+        id: '1',
+        content: 'Welcome to the match chat!',
+        username: 'System',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '2',
+        content: 'Good luck to both players!',
+        username: 'System',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '3',
+        content: 'Hey everyone!',
+        username: 'Player_123',
+        createdAt: new Date().toISOString()
+      }
+    ]);
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = async (e: React.FormEvent) => {
+  const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: input,
-          matchId,
-        }),
-      });
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      content: input.trim(),
+      username: username,
+      createdAt: new Date().toISOString()
+    };
 
-      if (!res.ok) throw new Error('Failed to send message');
-      setInput('');
-    } catch (error) {
-      console.error('Failed to send message:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    setMessages(prev => [...prev, newMessage]);
+    setInput('');
   };
 
   return (
@@ -75,14 +74,14 @@ export function Chat({ matchId }: ChatProps) {
           <div
             key={message.id}
             className={`flex flex-col ${
-              message.username === session?.user?.username
+              message.username === username
                 ? 'items-end'
                 : 'items-start'
             }`}
           >
             <div
               className={`max-w-[80%] rounded-lg p-3 ${
-                message.username === session?.user?.username
+                message.username === username
                   ? 'bg-red-500/10 border border-red-500/50'
                   : 'bg-white/5 border border-gray-800'
               }`}

@@ -1,51 +1,50 @@
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/config';
 import Link from 'next/link';
-import { Prisma, Match } from '@prisma/client';
 
-type MatchWithPlayers = Prisma.MatchGetPayload<{
-  include: {
-    player1: { select: { username: true } };
-    player2: { select: { username: true } };
-    winner: { select: { username: true } };
-  };
-}>;
+type Match = {
+  id: string;
+  player1: { username: string };
+  player2: { username: string };
+  winner?: { username: string };
+  status: string;
+  entryFee: number;
+  scheduledFor: string;
+  winnerId?: string;
+};
 
-export default async function MatchesPage() {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
-
-  const matches: MatchWithPlayers[] = await prisma.match.findMany({
-    where: {
-      OR: [
-        { player1Id: userId }, // Matches where user is host
-        { player2Id: userId }, // Matches where user is opponent
-      ],
+export default function MatchesPage() {
+  const userId = 'user123';
+  
+  // Placeholder match data
+  const matches: Match[] = [
+    {
+      id: '1',
+      player1: { username: 'Player1' },
+      player2: { username: 'Player2' },
+      winner: { username: 'Player1' },
+      status: 'COMPLETED',
+      entryFee: 100,
+      scheduledFor: '2025-04-14T14:00:00Z',
+      winnerId: 'user123'
     },
-    include: {
-      player1: {
-        select: {
-          username: true,
-        },
-      },
-      player2: {
-        select: {
-          username: true,
-        },
-      },
-      winner: {
-        select: {
-          username: true,
-        },
-      },
+    {
+      id: '2',
+      player1: { username: 'Player3' },
+      player2: { username: 'Player4' },
+      status: 'IN_PROGRESS',
+      entryFee: 200,
+      scheduledFor: '2025-04-14T15:00:00Z'
     },
-    orderBy: {
-      scheduledFor: 'desc',
-    },
-  });
+    {
+      id: '3',
+      player1: { username: 'Player5' },
+      player2: { username: 'Player6' },
+      status: 'CANCELLED_BY_HOST',
+      entryFee: 150,
+      scheduledFor: '2025-04-14T16:00:00Z'
+    }
+  ];
 
-  const getMatchResult = (match: MatchWithPlayers, userId: string) => {
+  const getMatchResult = (match: Match, userId: string) => {
     if (match.status === 'CANCELLED_BY_HOST' || match.status === 'CANCELLED_BY_ADMIN' || match.status === 'CANCELLED_EXPIRED') {
       return {
         text: 'CANCELLED',
@@ -109,7 +108,7 @@ export default async function MatchesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {matches.map((match: MatchWithPlayers) => {
+              {matches.map((match: Match) => {
                 const result = getMatchResult(match, userId || '');
                 return (
                   <tr
@@ -131,11 +130,11 @@ export default async function MatchesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2 text-sm">
-                        <span className={userId === match.player1Id ? 'font-bold' : ''}>
+                        <span className={match.player1?.username === 'Player1' ? 'font-bold' : ''}>
                           {match.player1?.username || 'TBD'}
                         </span>
                         <span className="text-gray-500">vs</span>
-                        <span className={userId === match.player2Id ? 'font-bold' : ''}>
+                        <span className={match.player2?.username === 'Player1' ? 'font-bold' : ''}>
                           {match.player2?.username || 'TBD'}
                         </span>
                       </div>
