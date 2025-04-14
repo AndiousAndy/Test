@@ -6,12 +6,12 @@ import { useRouter } from 'next/navigation';
 import MatchChat from '@/components/MatchChat';
 import MatchOutcome from '@/components/MatchOutcome';
 import CountdownTimer from '@/components/CountdownTimer';
-import { MATCH_STATUS } from '@/lib/matchStatus';
+import { MATCH_STATUS, MatchStatus } from '@/lib/matchStatus';
 
 interface Match {
   id: string;
   entryFee: number;
-  status: string;
+  status: MatchStatus;
   scheduledFor: string;
   player1Id: string;
   player2Id: string | null;
@@ -38,6 +38,31 @@ export default function MatchPage({ params }: { params: { id: string } }) {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isSubmittingOutcome, setIsSubmittingOutcome] = useState(false);
   const [submitOutcomeError, setSubmitOutcomeError] = useState('');
+
+  // Helper logic to determine if outcome submission is allowed
+  const isUserPlayer = match && session?.user?.id && (match.player1Id === session.user.id || match.player2Id === session.user.id);
+
+  const isMatchInProgressOrWaitingPastStart =
+    match && (
+      match.status === MATCH_STATUS.IN_PROGRESS ||
+      (match.status === MATCH_STATUS.WAITING_START && new Date(match.scheduledFor) <= new Date())
+    );
+
+  const isMatchCompletedWithoutWinner =
+    match && match.status === MATCH_STATUS.COMPLETED && !match.winner;
+
+  const isMatchDisputed = match && match.status === MATCH_STATUS.DISPUTED;
+
+  const userHasSubmitted = match && session?.user?.id && (
+      (match.player1Id === session.user.id && match.player1Outcome) ||
+      (match.player2Id === session.user.id && match.player2Outcome)
+  );
+
+  const canSubmitOutcome = 
+    isUserPlayer &&
+    (isMatchInProgressOrWaitingPastStart || isMatchCompletedWithoutWinner) &&
+    !isMatchDisputed &&
+    !userHasSubmitted; // Check if user has *not* submitted yet
 
   const fetchMatch = async () => {
     try {
@@ -271,13 +296,13 @@ export default function MatchPage({ params }: { params: { id: string } }) {
                   Scheduled For: <span className="text-white">
                     {new Date(match.scheduledFor).toLocaleString()}
                     {/* Conditionally render Countdown Timer */} 
-                    {new Date(match.scheduledFor) > new Date() && (match.status === 'OPEN' || match.status === 'WAITING_OPPONENT') && (
+                    {new Date(match.scheduledFor) > new Date() && (match.status === MATCH_STATUS.OPEN || match.status === MATCH_STATUS.WAITING_OPPONENT) && (
                       <span className="ml-2 text-yellow-400">
                         (Starts in: <CountdownTimer targetDate={new Date(match.scheduledFor)} onComplete={fetchMatch} />)
                       </span>
                     )}
                     {/* Optionally show 'Live' if time passed but status hasn't updated */}
-                    {new Date(match.scheduledFor) <= new Date() && (match.status === 'OPEN' || match.status === 'WAITING_OPPONENT') && (
+                    {new Date(match.scheduledFor) <= new Date() && (match.status === MATCH_STATUS.OPEN || match.status === MATCH_STATUS.WAITING_OPPONENT) && (
                         <span className="ml-2 text-green-400 font-semibold">(Live)</span>
                     )}
                   </span>
@@ -303,20 +328,8 @@ export default function MatchPage({ params }: { params: { id: string } }) {
           </div>
 
           {/* Outcome Submission Buttons */}
-          {match && session?.user?.id && (match.player1Id === session.user.id || match.player2Id === session.user.id) &&
-            (
-              match.status === 'IN_PROGRESS' || 
-              (match.status === 'WAITING_START' && new Date(match.scheduledFor) <= new Date()) || // Also allow if waiting but start time passed
-              (match.status === 'COMPLETED' && !match.winner)
-            ) && 
-            !(match.status === 'DISPUTED') && // Don't show if already disputed
-            ((
-              match.player1Id === session.user.id && !match.player1Outcome
-            ) || (
-              match.player2Id === session.user.id && !match.player2Outcome
-            ))
-            && (
-            <div className="mt-6 mb-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
+          {canSubmitOutcome && (
+            <div className="mt-6 p-4 bg-gray-700 bg-opacity-50 rounded-lg border border-gray-600">
               <h3 className="text-lg font-semibold text-white mb-3 text-center">Submit Your Result</h3>
               <div className="flex space-x-4 justify-center">
                 <button

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/config';
 import prisma from '@/lib/prisma';
 import { updateBalance } from '@/lib/balanceService'; 
 import { TransactionType } from '@prisma/client'; 

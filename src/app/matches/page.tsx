@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/config';
 import Link from 'next/link';
 
 export default async function MatchesPage() {

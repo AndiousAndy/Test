@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/config';
 import prisma from '@/lib/prisma';
 import { MATCH_STATUS } from '@/lib/matchStatus'; // Assuming you have status constants
 import { TransactionType } from '@prisma/client'; // Import TransactionType

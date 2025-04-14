@@ -1,5 +1,5 @@
 import { getServerSession, Session } from 'next-auth'; // Import Session type
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // Import authOptions
+import { authOptions } from '@/app/api/auth/config'; // Import authOptions
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
 
