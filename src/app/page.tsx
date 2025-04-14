@@ -68,7 +68,9 @@ async function fetchMatches(): Promise<MatchWithPlayers[]> {
 }
 
 export default async function Home() {
-  const matches: MatchWithPlayers[] = await fetchMatches(); 
+  // TEMPORARY: Disable database fetching for Netlify deployment without Supabase
+  // const matches: MatchWithPlayers[] = await fetchMatches(); 
+  const matches: MatchWithPlayers[] = []; // Use empty array for now
 
   return (
     <div className="space-y-12">
