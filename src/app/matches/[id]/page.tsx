@@ -8,12 +8,7 @@ import MatchOutcome from '@/components/MatchOutcome';
 import CountdownTimer from '@/components/CountdownTimer';
 import { MATCH_STATUS, MatchStatus } from '@/lib/matchStatus';
 
-// Add empty generateStaticParams to satisfy the build process for 'output: export'
-// This tells Next.js not to pre-render any specific match pages during build.
-// The page relies on client-side fetching.
-export async function generateStaticParams() {
-  return [];
-}
+// Removed generateStaticParams as it conflicts with 'use client'
 
 interface Match {
   id: string;
