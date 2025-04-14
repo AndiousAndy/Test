@@ -1,12 +1,14 @@
 [build]
-  command = "next build"
+  # More explicit build command to avoid Prisma issues
+  command = "NODE_ENV=production NEXT_STATIC_BUILD=true npm run build"
   publish = "out"
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
   NODE_VERSION = "20"
-  NODE_ENV = "production"
   # Set a placeholder DATABASE_URL for Prisma to build without connecting
   DATABASE_URL = "file:./dev.db"
-  # Flag to indicate we're doing a static build
-  NEXT_STATIC_BUILD = "true"
+
+# Disable the Next.js plugin since we're doing a static export
+[plugins]
+  package = []
