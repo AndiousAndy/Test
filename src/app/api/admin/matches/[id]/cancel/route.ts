@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession, Session } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
+import { Session } from 'next-auth'; 
 import { authOptions } from '@/app/api/auth/config';
 import prisma from '@/lib/prisma';
 import { MATCH_STATUS } from '@/lib/matchStatus';
-import { updateBalance } from '@/lib/balanceService'; // Assuming you have a balance service
-import { TransactionType } from '@prisma/client'; // Assuming TransactionType enum exists
+import { updateBalance } from '@/lib/balanceService';
+import { TransactionType, Prisma } from '@prisma/client'; 
+import { Decimal } from '@prisma/client/runtime/library';
 
 export async function POST(
   req: NextRequest,
@@ -31,7 +33,7 @@ export async function POST(
 
   try {
     // 2. Use a transaction to ensure atomicity (update match status + refund players)
-    const updatedMatch = await prisma.$transaction(async (tx) => {
+    const updatedMatch = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 3. Find the match and check its current status
       const match = await tx.match.findUnique({
         where: { id: matchId },
@@ -39,13 +41,13 @@ export async function POST(
           id: true,
           status: true,
           player1Id: true,
-          player2Id: true, // Need player2Id even if null for potential refunds
-          entryFee: true, // Correct field name
+          player2Id: true, 
+          entryFee: true, 
         },
       });
 
       if (!match) {
-        throw new Error('Match not found'); // This will cause the transaction to rollback
+        throw new Error('Match not found'); 
       }
 
       // 4. Check if the match is in a cancellable state
@@ -62,7 +64,7 @@ export async function POST(
         data: {
           status: MATCH_STATUS.CANCELLED_BY_ADMIN,
         },
-        select: { id: true, status: true }, // Select minimal data needed
+        select: { id: true, status: true }, 
       });
 
       // 6. Refund Players (if entryFee > 0 and player exists)
@@ -74,9 +76,9 @@ export async function POST(
           await updateBalance({
             userId: match.player1Id,
             amount: entryFee,
-            type: TransactionType.MATCH_ADMIN_CANCEL_REFUND, // Correct transaction type
+            type: TransactionType.MATCH_ADMIN_CANCEL_REFUND, 
             description: `Admin cancellation refund for match ${matchId}`,
-            prismaTx: tx, // Correct parameter name
+            prismaTx: tx, 
           });
         }
         // Only refund player 2 if they exist (i.e., match was not just OPEN)
@@ -85,14 +87,14 @@ export async function POST(
           await updateBalance({
             userId: match.player2Id,
             amount: entryFee,
-            type: TransactionType.MATCH_ADMIN_CANCEL_REFUND, // Correct transaction type
+            type: TransactionType.MATCH_ADMIN_CANCEL_REFUND, 
             description: `Admin cancellation refund for match ${matchId}`,
-            prismaTx: tx, // Correct parameter name
+            prismaTx: tx, 
           });
         }
       }
 
-      return cancelledMatch; // Return the updated match data from the transaction
+      return cancelledMatch; 
     });
 
     return NextResponse.json(updatedMatch);
@@ -106,7 +108,7 @@ export async function POST(
       status = 404;
       message = error.message;
     } else if (error.message.startsWith('Match cannot be cancelled')) {
-      status = 409; // Conflict - state doesn't allow the operation
+      status = 409; 
       message = error.message;
     }
 
